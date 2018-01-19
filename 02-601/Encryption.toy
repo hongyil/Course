@@ -1,0 +1,112 @@
+/******************************************************************************
+ *  Name: Hongyi Liang
+ *  NetID: hongyil
+ *  Precept:
+ *
+ *  Description: Encryption and Decryption
+ *
+ ******************************************************************************/
+
+function main
+// Input:seed,n               
+// Return address:      
+// Output:memory assignment 00-0F parameters; A0-AF:data input,B0-BF:random int              
+// Temporary variables: inside functions using ABCD...,outside will use number
+
+10: 81FF   read R[1]                     0=decrypt;non-zeron=encrypt with seed
+11: 9100   M[00] <- R[1]                 store the seed in memory 00
+12: 81FF   read R[1]                     n,the number of words
+13: 9101   M[01] <- R[1]                 store n in memory 01
+14: 7101   R[1] <- 0001                  set necessary parameter R[1]=1
+15: 8200   R[2] <- M[00]                 load the seed value R[2]=seed
+16: 8301   R[3] <- M[01]                 load the value of n R[3]=n
+17: 7BA0   R[B] <- 00A0                  assign memory A0-AF for input
+18: FF5A   R[F] <- PC; goto 5A           store the input words
+19: 8301   R[3] <- M[01]                 reset R[3]=n
+1A: 7BB0   R[B] <- 00B0                  assign memory B0-BF for random ints
+1B: D21F   if (R[2] > 0) goto 1F         if seed>0,jump to encryption
+1C: FF5A   R[F] <- PC; goto 5A           if seed=0,read input
+1D: 8301   R[3] <- M[01]                 reset R[3]=n
+1E: C028   goto 28                       while seed >0:
+1F: 90FF   write R[0]                    standard output 0->n->encrypted
+20: 74B0   R[4] <- 00B0                  for storing initial seed
+21: B204   M[R[4]] <- R[2]               store the seed
+22: C328   if (R[3] == 0) goto 28        while seed>0 and n>0                       
+23: FF50   R[F] <- PC; goto 50           generate n random int
+24: BD04   M[R[4]] <- R[D]               M[00B0]=random number
+25: 1441   R[4] <- R[4] + R[1]           next address
+26: 2331   R[3] <- R[3] - R[1]           n-=1
+27: C022   goto 22                       continue loop
+28: 8301   R[3] <- M[01]                 reset R[3]=n for XOR
+29: FF61   R[F] <- PC; goto 61           XOR;decryption or encryption
+2A: 8301   R[3] <- M[01]                 reset R[3]=n for output
+2B: 93FF   write R[3]                    output n(0->n)
+2C: 74A0   R[4] <- 00A0                  encrypt or decrypt: print targeted word
+2D: FF6D   R[F] <- PC; goto 6D           call the print function
+2E: 8301   R[3] <- M[01]                 reset R[3]=n for output
+2F: C232   if (R[2] == 0) goto 32        while seed>0:
+30: 74B0   R[4] <- 00B0                  load the secret key address list
+31: FF6D   R[F] <- PC; goto 6D           print secret key
+32: 0000   halt                          stop
+
+function GenerateRandomInt
+// Input:seed              
+// Return address:      
+// Output:a random int              
+// Temporary variables: R[A],R[B],R[C],R[D]
+50: 7A11   R[A] <- 0011                  a=2^4+1=0x11,f(R)=(a*R+c) mod m
+51: AB04   R[B] <- M[R[4]]               load seed value R to compute f(R)
+52: 7C53   R[C] <- 0053                  for the loop
+53: CA57   if (R[A] == 0) goto 57        while a>0:
+54: 1DDB   R[D] <- R[D] + R[B]           R[D]=R[D]+seed, for a times
+55: 2AA1   R[A] <- R[A] - R[1]           a-=1
+56: EC00   goto R[C]                     continue the loop
+57: 1DD1   R[D] <- R[D] + R[1]           c=1,R[D]++
+58: EF00   goto R[F]                     end function
+
+function ReadInputWords
+// Input:n               
+// Return address:      
+// Output: n words and their memory address             
+// Temporary variables: R[B]
+5A: C360   if (R[3] == 0) goto 60        while n>0:
+5B: 8AFF   read R[A]                     read the stdin as input value
+5C: BA0B   M[R[B]] <- R[A]               read the input and store in M[R[B]]
+5D: 1BB1   R[B] <- R[B] + R[1]           R[B]+=1,to change the address
+5E: 2331   R[3] <- R[3] - R[1]           R[3]-=1 or n-=1
+5F: C05A   goto 5A                       if n!=0,read next input number
+60: EF00   goto R[F]                     end function
+
+function XOR
+// Input:n,input words,location1,2            
+// Return address:location 3 or R[F]    
+// Output:n encrypted words or decrypted words              
+// Temporary variables: R[A],R[B],R[C],R[D]
+
+61: 7AA0   R[A] <- 00A0                  R[A] reads input address
+62: 7BB0   R[B] <- 00B0                  R[B] reads randint address
+63: C36C   if (R[3] == 0) goto 6C        while n>0:
+64: AC0A   R[C] <- M[R[A]]               R[C] reads input words
+65: AD0B   R[D] <- M[R[B]]               R[D] reads randint values
+66: 4CCD   R[C] <- R[C] ^ R[D]           R[C] stores XOR results
+67: BC0A   M[R[A]] <- R[C]               encrypted input words 
+68: 1AA1   R[A] <- R[A] + R[1]           next input
+69: 1BB1   R[B] <- R[B] + R[1]           next secret keys
+6A: 2331   R[3] <- R[3] - R[1]           n-=1
+6B: C063   goto 63                       continue loop until n=0
+6C: EF00   goto R[F]                     end function
+
+function print
+// Input:seed,R[3]=n R[4] stores the output address             
+// Return address:      
+// Output: the words             
+// Temporary variables: 
+6D: C373   if (R[3] == 0) goto 73        while n>0:
+6E: AA04   R[A] <- M[R[4]]               load the output values from address
+6F: 9AFF   write R[A]                    output targeted words
+70: 2331   R[3] <- R[3] - R[1]           n-=1
+71: 1441   R[4] <- R[4] + R[1]           next address
+72: C06D   goto 6D                       continue printing
+73: Ef00   goto R[F]                     end function
+
+
