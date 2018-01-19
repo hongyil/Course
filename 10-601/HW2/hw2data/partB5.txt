@@ -1,0 +1,12 @@
+1.What did you observe, and how well did your program do?
+
+In fact I can observe only a few things since I still struggle debugging my program
+
+I can assert that the hypothesis is traingin-consistent. That means what I derive from 
+training data can generate good hypothesis.
+
+And my program not works really well since I cannot have full scores for problem B5  
+
+2.What, if anything, can you learn from this?
+
+I think the more samples we have, the more accurate my hypothesis will be
