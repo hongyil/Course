@@ -1,0 +1,15 @@
+Train and test a decision tree for the politician dataset and the education dataset. Which is moreaccurate on the training data? Which is more accurate on the testing data?
+
+Case 1: politician
+
+Command: python decisionTree.py hw4data/politicians_train.csv hw4data/politicians_test.csv 
+Result: error(train): 0.140939597315
+	error(test): 0.156626506024
+
+Case 2: Education
+
+Command: python decisionTree.py hw4data/education_train.csv hw4data/education_test.csv 
+Result: error(train): 0.195
+	error(test): 0.23
+
+So I think politician is more accurate on train data, education is more accurate on training data

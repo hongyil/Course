@@ -1,0 +1,3 @@
+1.do you think a decision tree will work for the politician dataset? What about for the education dataset?
+
+Yes, because instances are described by attribut-value pairs and target function is discrete valued
