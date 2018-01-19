@@ -1,4 +1,4 @@
-# Course-Work
+# Coursework
 Course work at CMU
 
 Not intended for students who are taking those courses,
